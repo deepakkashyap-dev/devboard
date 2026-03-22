@@ -1,4 +1,4 @@
-import type { Task, CreateTaskPayload } from '../types'
+import type { Task, CreateTaskPayload, UpdateTaskPayload, PaginatedResponse } from '../types'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
@@ -15,8 +15,13 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const tasksApi = {
-    getAll: (status?: string) =>
-        request<Task[]>(`/api/tasks/${status ? `?status=${status}` : ''}`),
+    getAll: (status?: string, page = 1, limit = 10) => {
+        const params = new URLSearchParams()
+        if (status) params.set('status', status)
+        params.set('page', String(page))
+        params.set('limit', String(limit))
+        return request<PaginatedResponse>(`/api/tasks/?${params.toString()}`)
+    },
 
     create: (data: CreateTaskPayload) =>
         request<Task>('/api/tasks/', { method: 'POST', body: JSON.stringify(data) }),

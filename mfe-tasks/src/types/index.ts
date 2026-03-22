@@ -17,3 +17,19 @@ export interface CreateTaskPayload {
     priority: 'low' | 'medium' | 'high'
     dueDate: string
 }
+
+export interface UpdateTaskPayload {
+    title?: string
+    description?: string
+    priority?: 'low' | 'medium' | 'high'
+    dueDate?: string
+    status?: 'pending' | 'completed'
+}
+
+export interface PaginatedResponse {
+    tasks: Task[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+}

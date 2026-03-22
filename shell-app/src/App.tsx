@@ -4,7 +4,6 @@ import Navbar from './components/Navbar'
 import ErrorBoundary from './components/ErrorBoundary'
 import './index.css'
 
-// Lazy load — shell runtime pe MFEs load karta hai
 const TasksApp = lazy(() => import('mfeTasks/App'))
 const DashboardApp = lazy(() => import('mfeDashboard/App'))
 

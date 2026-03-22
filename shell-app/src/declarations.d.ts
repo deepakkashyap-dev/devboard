@@ -1,4 +1,4 @@
-// Module Federation remote types — TypeScript ko batao ki yeh modules exist karte hain
+// Module Federation remote types 
 declare module 'mfeTasks/App' {
     const App: React.ComponentType
     export default App

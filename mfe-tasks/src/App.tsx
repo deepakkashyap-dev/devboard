@@ -12,7 +12,13 @@ const queryClient = new QueryClient({
 
 function TasksApp() {
   const [filter, setFilter] = useState<FilterType>('all')
+  const [page, setPage] = useState(1)
   const [showForm, setShowForm] = useState(false)
+
+  function handleFilterChange(f: FilterType) {
+    setFilter(f)
+    setPage(1)
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -26,14 +32,24 @@ function TasksApp() {
         </button>
       </div>
 
-      {showForm && <TaskForm onSuccess={() => setShowForm(false)} />}
-      <TaskFilter filter={filter} onChange={setFilter} />
-      <TaskList filter={filter} />
+      {showForm && (
+        <TaskForm onSuccess={() => {
+          setShowForm(false)
+          setPage(1)
+        }} />
+      )}
+
+      <TaskFilter filter={filter} onChange={handleFilterChange} />
+
+      <TaskList
+        filter={filter}
+        page={page}
+        onPageChange={setPage}
+      />
     </div>
   )
 }
 
-// QueryClientProvider yahan wrap karo — shell se independent rehta hai
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>

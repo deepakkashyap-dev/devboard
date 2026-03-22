@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { Task } from '../types'
 
-// Wahi logic jo TaskCard mein use hoti hai
 function isOverdue(task: Task): boolean {
     return task.status === 'pending' && new Date(task.dueDate) < new Date()
 }

@@ -1,10 +1,56 @@
+import { useState } from 'react'
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    arrayMove,
+} from '@dnd-kit/sortable'
 import { useTasks } from '../hooks/useTasks'
 import TaskCard from './TaskCard'
 import SkeletonCard from './SkeletonCard'
-import type { FilterType } from '../types'
+import Pagination from './Pagination'
+import type { FilterType, Task } from '../types'
 
-export default function TaskList({ filter }: { filter: FilterType }) {
-    const { data: tasks, isLoading, isError, error } = useTasks(filter)
+export default function TaskList({
+    filter,
+    page,
+    onPageChange,
+}: {
+    filter: FilterType
+    page: number
+    onPageChange: (p: number) => void
+}) {
+    const { data, isLoading, isError, error } = useTasks(filter, page)
+    const [localOrder, setLocalOrder] = useState<Task[] | null>(null)
+    const tasks = localOrder ?? data?.tasks ?? []
+
+    // useEffect(() => setLocalOrder(null), [filter, page]) — optional
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    )
+
+    function handleDragEnd(event: DragEndEvent) {
+        const { active, over } = event
+        if (!over || active.id === over.id) return
+
+        const currentTasks = localOrder ?? data?.tasks ?? []
+        const oldIndex = currentTasks.findIndex((t) => t.id === active.id)
+        const newIndex = currentTasks.findIndex((t) => t.id === over.id)
+        setLocalOrder(arrayMove(currentTasks, oldIndex, newIndex))
+    }
 
     if (isLoading) {
         return (
@@ -34,8 +80,34 @@ export default function TaskList({ filter }: { filter: FilterType }) {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {tasks.map((task) => <TaskCard key={task.id} task={task} />)}
-        </div>
+        <>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}>
+                <SortableContext
+                    items={tasks.map((t) => t.id)}
+                    strategy={verticalListSortingStrategy}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {tasks.map((task) => (
+                            <TaskCard key={task.id} task={task} />
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
+
+            {data && (
+                <Pagination
+                    page={data.page}
+                    totalPages={data.totalPages}
+                    total={data.total}
+                    limit={data.limit}
+                    onChange={(p) => {
+                        setLocalOrder(null)
+                        onPageChange(p)
+                    }}
+                />
+            )}
+        </>
     )
 }
