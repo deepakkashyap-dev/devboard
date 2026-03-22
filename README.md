@@ -1,8 +1,13 @@
 # DevBoard — Micro Frontend Task Management App
 
-> A full-stack task management application built with **Micro Frontend (MFE) architecture** using Vite Module Federation, FastAPI, and MongoDB Atlas.
+## ✨ Key Features
 
----
+- ✅ **Task Management**: Create, update, delete, and toggle task status
+- ✅ **Drag-and-Drop Reordering**: Reorder tasks intuitively using @dnd-kit
+- ✅ **Pagination**: Efficient loading of large task lists with page and limit controls
+- ✅ **Real-time Stats**: Dashboard with completion rates and priority breakdowns
+- ✅ **Micro Frontend Architecture**: Independent deployment of features
+- ✅ **Optimistic UI**: Instant updates with rollback on failure
 
 ## 🌐 Live Deployment Links
 
@@ -126,6 +131,7 @@ devboard/
 | Frontend Framework | React 18 + TypeScript |
 | Build Tool | Vite 5 |
 | MFE | @originjs/vite-plugin-federation |
+| Drag-and-Drop | @dnd-kit |
 | Styling | Tailwind CSS |
 | Data Fetching | TanStack React Query v5 |
 | Backend | FastAPI (Python) |
@@ -431,7 +437,7 @@ Full interactive docs at: `/docs`
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/tasks/` | Get all tasks. Optional: `?status=pending` or `?status=completed` |
+| GET | `/api/tasks/` | Get all tasks. Optional: `?status=pending`, `?page=1`, `?limit=50` |
 | GET | `/api/tasks/stats` | Aggregate counts: total, completed, pending, overdue |
 | POST | `/api/tasks/` | Create a new task |
 | PUT | `/api/tasks/{id}` | Update any task fields |
@@ -463,6 +469,7 @@ description  String    no        null       max 1000 chars
 status       String    yes       "pending"  enum: pending | completed
 priority     String    yes       "medium"   enum: low | medium | high
 dueDate      Date      yes       -          ISO 8601 format
+order        Number    auto      auto       Sort order for drag-and-drop
 createdAt    Date      auto      now        Set on insert
 isDeleted    Boolean   auto      false      Soft delete flag
 ```
@@ -476,6 +483,7 @@ Sample document in Atlas:
   "status": "pending",
   "priority": "high",
   "dueDate": "2025-06-01T00:00:00.000Z",
+  "order": 1,
   "createdAt": "2025-05-15T10:30:00.000Z",
   "isDeleted": false
 }
@@ -499,3 +507,20 @@ Created `shared-ui` as a fourth Module Federation remote so both `mfe-tasks` and
 
 ### /stats route defined before /{task_id}
 The `/stats` endpoint must be declared **before** `/{task_id}` in FastAPI's router. If reversed, FastAPI would treat the string `"stats"` as a task ID and return a 400 validation error.
+
+### Drag-and-Drop Task Reordering
+Implemented using `@dnd-kit` for intuitive task reordering. Tasks can be dragged and dropped to change their order, with the new order persisted to the database via an `order` field.
+
+### Pagination for Tasks List
+Added pagination to handle large task lists efficiently. The API now supports `page` and `limit` query parameters, loading only the requested subset of tasks instead of fetching all at once. This improves performance and user experience for large datasets.
+
+---
+ 
+## 🔮 What I Would Improve With More Time
+ 
+- Add **authentication** (JWT-based) so each user sees only their own tasks
+- **End-to-end tests** with Playwright for critical user flows
+- **Dark mode** support using Tailwind's `dark:` variants
+- Improve **CI/CD** to auto-deploy to Vercel on merge to main (currently Vercel handles it separately)
+- Add **WebSocket** for real-time updates across tabs
+ 
