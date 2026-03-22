@@ -34,7 +34,7 @@ jobs:
             cache: "npm",
             cache-dependency-path: mfe-tasks/package-lock.json,
           }
-      - run: cd mfe-tasks && npm ci && npm run build
+      - run: cd mfe-tasks && npm ci && npm test && npm run build
 
   build-mfe-dashboard:
     name: Build mfe-dashboard
