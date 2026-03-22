@@ -55,14 +55,27 @@ async def get_stats():
 
 
 @router.get("/")
-async def get_tasks(status: Optional[str] = Query(None, pattern="^(pending|completed)$")):
+async def get_tasks(
+    status: Optional[str] = Query(None, pattern="^(pending|completed)$"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+):
     db = get_db()
     query: dict = {"isDeleted": False}
     if status:
         query["status"] = status
-    tasks = await db.tasks.find(query).sort("createdAt", -1).to_list(500)
-    return [serialize(t) for t in tasks]
 
+    skip = (page - 1) * limit
+    total = await db.tasks.count_documents(query)
+    tasks = await db.tasks.find(query).sort("createdAt", -1).skip(skip).limit(limit).to_list(limit)
+
+    return {
+        "tasks": [serialize(t) for t in tasks],
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "totalPages": (total + limit - 1) // limit,
+    }
 
 @router.post("/", status_code=201)
 async def create_task(task: TaskCreate):
