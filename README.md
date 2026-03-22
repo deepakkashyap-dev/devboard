@@ -158,7 +158,7 @@ pip --version
 ### Step 1 — Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/devboard.git
+git clone https://github.com/deepakkashyap-dev/devboard.git
 cd devboard
 ```
 
@@ -182,7 +182,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Create .env file
-cp .env.example .env
+touch .env
 ```
 
 Now open `.env` and fill in your MongoDB Atlas credentials:
@@ -497,25 +497,5 @@ When a user clicks "Mark Done", the UI updates **immediately** without waiting f
 ### Shared UI as a separate MFE
 Created `shared-ui` as a fourth Module Federation remote so both `mfe-tasks` and `mfe-dashboard` consume the same `Button`, `Badge`, `Card`, and `Skeleton` components. This avoids code duplication and ensures visual consistency. In production, updating a shared component requires only redeploying `shared-ui`.
 
-### FastAPI instead of Express
-Used FastAPI (Python) instead of Node.js + Express because:
-- **Pydantic** gives automatic request validation with clear error messages
-- **Auto-generated Swagger docs** at `/docs` — no extra work
-- **Motor** provides async MongoDB operations so the server doesn't block on DB calls
-- FastAPI is production-grade and widely used in industry
-
 ### /stats route defined before /{task_id}
 The `/stats` endpoint must be declared **before** `/{task_id}` in FastAPI's router. If reversed, FastAPI would treat the string `"stats"` as a task ID and return a 400 validation error.
-
----
-
-## 🔮 What I Would Improve With More Time
-
-- Add **authentication** (JWT-based) so each user sees only their own tasks
-- Add **edit task** functionality (currently only create and delete)
-- Add **drag-and-drop** task reordering using `@dnd-kit`
-- Add **pagination** for the tasks list (currently loads up to 500)
-- **End-to-end tests** with Playwright for critical user flows
-- **Dark mode** support using Tailwind's `dark:` variants
-- Improve **CI/CD** to auto-deploy to Vercel on merge to main (currently Vercel handles it separately)
-- Add **WebSocket** for real-time updates across tabs
